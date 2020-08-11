@@ -15,12 +15,8 @@ export default function App() {
   const apolloClient = useApolloClient();
 
   const onHandleChange = (id, value) => {
-    const existingData = apolloClient.readQuery({
-      query: ALL_PEOPLE,
-    });
-
     const newData = {
-      people: existingData.people.map((person) =>
+      people: data.people.map((person) =>
         person.id === id ? { ...person, name: value } : person
       ),
     };
