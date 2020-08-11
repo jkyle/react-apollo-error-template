@@ -1,5 +1,5 @@
-import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import React, { useCallback } from 'react';
+import { gql, useQuery, useApolloClient } from '@apollo/client';
 
 const ALL_PEOPLE = gql`
   query AllPeople {
@@ -11,10 +11,28 @@ const ALL_PEOPLE = gql`
 `;
 
 export default function App() {
-  const {
-    loading,
-    data
-  } = useQuery(ALL_PEOPLE);
+  const { loading, data } = useQuery(ALL_PEOPLE);
+  const apolloClient = useApolloClient();
+
+  const onHandleChange = useCallback(
+    (id, value) => {
+      const existingData = apolloClient.readQuery({
+        query: ALL_PEOPLE,
+      });
+
+      const newData = {
+        people: existingData.people.map((person) =>
+          person.id === id ? { ...person, name: value } : person
+        ),
+      };
+
+      apolloClient.writeQuery({
+        query: ALL_PEOPLE,
+        data: newData,
+      });
+    },
+    [apolloClient]
+  );
 
   return (
     <main>
@@ -27,8 +45,13 @@ export default function App() {
         <p>Loading…</p>
       ) : (
         <ul>
-          {data.people.map(person => (
-            <li key={person.id}>{person.name}</li>
+          {data.people.map((person) => (
+            <li key={person.id}>
+              <input
+                value={person.name}
+                onChange={(e) => onHandleChange(person.id, e.target.value)}
+              />
+            </li>
           ))}
         </ul>
       )}
