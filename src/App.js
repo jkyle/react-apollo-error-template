@@ -11,19 +11,17 @@ const ALL_PEOPLE = gql`
 `;
 
 export default function App() {
-  const { loading, data } = useQuery(ALL_PEOPLE);
   const apolloClient = useApolloClient();
+  const { loading, data } = useQuery(ALL_PEOPLE);
 
-  const onHandleChange = (id, value) => {
-    const newData = {
-      people: data.people.map((person) =>
-        person.id === id ? { ...person, name: value } : person
-      ),
-    };
+  const onHandleChange = (personId, value) => {
+    const people = data.people.map((person) =>
+      person.id === personId ? { ...person, name: value } : person
+    );
 
     apolloClient.writeQuery({
       query: ALL_PEOPLE,
-      data: newData,
+      data: { people },
     });
   };
 
